@@ -15,7 +15,7 @@ function RootLayout() {
             <Outlet />
           </main>
           <Footer />
-          <Toaster richColors position="top-right" />
+          <Toaster richColors position="bottom-right" />
         </div>
       </FavoritesProvider>
     </CartProvider>

@@ -16,8 +16,19 @@ import AdminLayout from "./layouts/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Users from "./pages/admin/users/Users";
 import Orders from "./pages/admin/orders/Oreders";
-import Sales from "./pages/admin/sales/Sales";
 import NewBookPage from "./pages/admin/books/NewBookPage";
+import NewUserPage from "./pages/admin/users/NewUserPage";
+import LoginPage from "./pages/auth/login";
+import RegisterPage from "./pages/auth/Register";
+import Purchases from "./pages/admin/purchases/Purchases";
+import Suppliers from "./pages/admin/suppliers/Suppliers";
+import NewSupplierPage from "./pages/admin/suppliers/NewSupplierPage";
+import NewPurchasePage from "./pages/admin/purchases/NewPurchasePage";
+import Category from "./pages/admin/category/Category";
+import NewCategoryPage from "./pages/admin/category/NewCategoryPage";
+import UpdateCategory from "./pages/admin/category/UpdateCategory";
+import UpdateBookPage from "./pages/admin/books/UpdateBookPage";
+import UpdateSupplier from "./pages/admin/suppliers/UpdateSupplier";
 
 function App() {
   return (
@@ -44,15 +55,33 @@ function App() {
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
-
+      <Route path="/auth">
+        <Route path="login" element={<LoginPage />} />
+        <Route path="register" element={<RegisterPage />} />
+      </Route>
       {/* Admin layout */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route index path="dashboard" element={<Dashboard />} />
-        <Route path="books" element={<Books />} />
-        <Route path="books/new" element={<NewBookPage />} />
+        <Route path="books">
+          <Route index element={<Books />} />
+          <Route path="new" element={<NewBookPage />} />
+          <Route path=":id" element={<UpdateBookPage />} />
+        </Route>
         <Route path="users" element={<Users />} />
+        <Route path="users/new" element={<NewUserPage />} />
         <Route path="orders" element={<Orders />} />
-        <Route path="sales" element={<Sales />} />
+        <Route path="purchases" element={<Purchases />} />
+        <Route path="purchases/new" element={<NewPurchasePage />} />
+        <Route path="suppliers">
+          <Route index element={<Suppliers />} />
+          <Route path="new" element={<NewSupplierPage />} />
+          <Route path=":id" element={<UpdateSupplier />} />
+        </Route>
+        <Route path="categories">
+          <Route index element={<Category />} />
+          <Route path="new" element={<NewCategoryPage />} />
+          <Route path=":id" element={<UpdateCategory />} />
+        </Route>
       </Route>
     </Routes>
   );

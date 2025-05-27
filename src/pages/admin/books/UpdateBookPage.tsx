@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,7 +14,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Save } from "lucide-react";
 import { useForm, type SubmitHandler, Controller } from "react-hook-form";
-import { Link } from "react-router";
 import {
   Select,
   SelectContent,
@@ -22,61 +23,68 @@ import {
 } from "@/components/ui/select";
 
 import useCategories from "@/hooks/use-categories";
-import { insertBook } from "@/services/bookService";
+import { fetchBookById, updateBook } from "@/services/bookService";
 import { toast } from "sonner";
 import type { BookType } from "@/lib/types";
 
-export default function NewBookPage() {
+export default function UpdateBookPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
     watch,
-    reset,
-  } = useForm<BookType>({
-    defaultValues: {
-      title: "Atomic habits",
-      author: "Alex Michaelides",
-      description: "hsssssssssssssssssssssssssssssssssssssssssss",
-      purchasePrice: 10,
-      sellingPrice: 20,
-      stock: 56,
-      publisher: "Celadon Books",
-      publishedDate: "2019-02-05",
-      pages: 198,
-      isbn: "9780132350884",
-      coverImage: undefined,
-      categoryId: 1,
-    },
-  });
+    reset, // ✅ use reset instead of setValue
+  } = useForm<BookType>();
+
   const { categories } = useCategories();
   const coverImage = watch("coverImage");
+
   const coverImagePreview =
     coverImage instanceof FileList && coverImage.length > 0
       ? URL.createObjectURL(coverImage[0])
-      : null;
+      : typeof coverImage === "string"
+      ? coverImage
+      : undefined;
+
   const selectedCategoryName = categories.find(
     (cat) => cat.id === watch("categoryId")
   )?.name;
 
+  useEffect(() => {
+    const fetchBook = async () => {
+      if (!id) return;
+      try {
+        const book = await fetchBookById(Number(id));
+        if (book) {
+          reset(book); // ✅ use reset to set all form values
+        } else {
+          toast.error("Book not found");
+          navigate("/admin/books");
+        }
+      } catch (err) {
+        toast.error("Error loading book");
+        console.error(err);
+      }
+    };
+
+    fetchBook();
+  }, [id, reset, navigate]);
+
   const onSubmit: SubmitHandler<BookType> = async (data) => {
     try {
-      const newBookData = {
+      const updatedData = {
         ...data,
-        coverImage: coverImage instanceof FileList ? coverImage[0] : coverImage, // Ensure we send the file if it's a FileList
+        coverImage: coverImage instanceof FileList ? coverImage[0] : coverImage,
       };
-      console.log("Submitting new book data:", newBookData);
-      const createdBook = await insertBook(newBookData);
-
-      if (!createdBook?.id) {
-        throw new Error("Book creation failed");
-      }
-
-      toast.success("Book created!");
-      reset();
+      await updateBook(Number(id), updatedData);
+      toast.success("Book updated!");
+      navigate("/admin/books");
     } catch (err) {
-      toast.error("Error creating book");
+      toast.error("Error updating book");
       console.error(err);
     }
   };
@@ -90,7 +98,7 @@ export default function NewBookPage() {
             Back to Books
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">Add New Book</h1>
+        <h1 className="text-3xl font-bold">Update Book</h1>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
@@ -98,8 +106,8 @@ export default function NewBookPage() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <Card>
               <CardHeader>
-                <CardTitle>Book Details</CardTitle>
-                <CardDescription>Enter the book information</CardDescription>
+                <CardTitle>Edit Book Details</CardTitle>
+                <CardDescription>Modify the book information</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
@@ -136,11 +144,6 @@ export default function NewBookPage() {
                       step="0.01"
                       {...register("purchasePrice", { valueAsNumber: true })}
                     />
-                    {errors.purchasePrice && (
-                      <p className="text-red-500">
-                        {errors.purchasePrice.message}
-                      </p>
-                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="sellingPrice">Selling Price ($)</Label>
@@ -149,11 +152,6 @@ export default function NewBookPage() {
                       step="0.01"
                       {...register("sellingPrice", { valueAsNumber: true })}
                     />
-                    {errors.sellingPrice && (
-                      <p className="text-red-500">
-                        {errors.sellingPrice.message}
-                      </p>
-                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="stock">Stock</Label>
@@ -161,12 +159,9 @@ export default function NewBookPage() {
                       type="number"
                       {...register("stock", { valueAsNumber: true })}
                     />
-                    {errors.stock && (
-                      <p className="text-red-500">{errors.stock.message}</p>
-                    )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="Category.id">Category</Label>
+                    <Label htmlFor="categoryId">Category</Label>
                     <Controller
                       control={control}
                       name="categoryId"
@@ -193,11 +188,6 @@ export default function NewBookPage() {
                         </Select>
                       )}
                     />
-                    {errors.categoryId && (
-                      <p className="text-red-500">
-                        {errors.categoryId.message}
-                      </p>
-                    )}
                   </div>
                 </div>
 
@@ -208,16 +198,7 @@ export default function NewBookPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="publishedDate">Published Date</Label>
-                    <Input
-                      id="publishedDate"
-                      placeholder="YYYY-MM-DD"
-                      {...register("publishedDate")}
-                    />
-                    {errors.publishedDate && (
-                      <p className="text-red-500">
-                        {errors.publishedDate.message}
-                      </p>
-                    )}
+                    <Input id="publishedDate" {...register("publishedDate")} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="pages">Pages</Label>
@@ -225,16 +206,10 @@ export default function NewBookPage() {
                       type="number"
                       {...register("pages", { valueAsNumber: true })}
                     />
-                    {errors.pages && (
-                      <p className="text-red-500">{errors.pages.message}</p>
-                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="isbn">ISBN</Label>
                     <Input id="isbn" {...register("isbn")} />
-                    {errors.isbn && (
-                      <p className="text-red-500">{errors.isbn.message}</p>
-                    )}
                   </div>
                 </div>
 
@@ -249,7 +224,7 @@ export default function NewBookPage() {
                 </Button>
                 <Button type="submit">
                   <Save className="h-4 w-4 mr-2" />
-                  Create Book
+                  Update Book
                 </Button>
               </CardFooter>
             </Card>

@@ -13,7 +13,17 @@ type BookCardProps = {
 function BookCard({ book }: BookCardProps) {
   const { addToCart } = useCart();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
-
+  let coverImageSrc: string | undefined = undefined;
+  if (typeof book.coverImage === "string") {
+    coverImageSrc = book.coverImage;
+  } else if (book.coverImage instanceof File) {
+    coverImageSrc = URL.createObjectURL(book.coverImage);
+  } else if (
+    book.coverImage instanceof FileList &&
+    book.coverImage.length > 0
+  ) {
+    coverImageSrc = URL.createObjectURL(book.coverImage[0]);
+  }
   const handleAddToCart = () => {
     addToCart(book);
     toast("Added to cart", {
@@ -24,6 +34,7 @@ function BookCard({ book }: BookCardProps) {
   //   addToFavorites(book);
   // };
   const toggleFavorite = () => {
+    if (book.id === undefined) return;
     if (isFavorite(book.id)) {
       removeFromFavorites(book.id);
     } else {
@@ -37,7 +48,7 @@ function BookCard({ book }: BookCardProps) {
       <Link to={`/books/${book.id}`}>
         <div className="relative bg-muted pt-[100%]">
           <img
-            src={book.coverImage}
+            src={coverImageSrc}
             className={`absolute top-0 left-0 w-full h-full object-cover transition-transform duration-300 scale-100`}
           />
         </div>
@@ -53,12 +64,16 @@ function BookCard({ book }: BookCardProps) {
             className="size-8 cursor-pointer -mt-1 -mr-2"
             onClick={toggleFavorite}
             aria-label={
-              isFavorite(book.id) ? "Remove from favorites" : "Add to favorites"
+              book.id !== undefined && isFavorite(book.id)
+                ? "Remove from favorites"
+                : "Add to favorites"
             }
           >
             <Heart
               className={`h-4 w-4 ${
-                isFavorite(book.id) ? "fill-primary text-primary" : ""
+                book.id !== undefined && isFavorite(book.id)
+                  ? "fill-primary text-primary"
+                  : ""
               }`}
             />
           </Button>

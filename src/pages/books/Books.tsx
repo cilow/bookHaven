@@ -25,10 +25,11 @@ import BookCard from "@/components/BookCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import BookCardSkeleton from "@/components/skeleton/BookCardSkeleton";
 import useBooks from "@/hooks/useBooks";
+import useCategories from "@/hooks/use-categories";
 
 export default function BooksPage() {
   const { books, isLoading } = useBooks();
-  const categories = Array.from(new Set(books.map((book) => book.category)));
+  const { categories } = useCategories();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredBooks, setFilteredBooks] = useState<BookType[]>(books);
@@ -133,13 +134,15 @@ export default function BooksPage() {
       result = result.filter(
         (book) =>
           book.title.toLowerCase().includes(query) ||
-          book.author.toLowerCase().includes(query) ||
-          book.category.toLowerCase().includes(query)
+          book.author.toLowerCase().includes(query)
       );
     }
 
+    // When filtering:
     if (activeCategory !== "all") {
-      result = result.filter((book) => book.category === activeCategory);
+      result = result.filter(
+        (book) => String(book.categoryId) === activeCategory
+      );
     }
 
     if (priceRange !== "all") {
@@ -298,8 +301,8 @@ export default function BooksPage() {
         <TabsList className="mb-4 flex-wrap">
           <TabsTrigger value="all">All Books</TabsTrigger>
           {categories.map((category) => (
-            <TabsTrigger key={category} value={category}>
-              {category}
+            <TabsTrigger key={category.id} value={String(category.id)}>
+              {category.name}
             </TabsTrigger>
           ))}
         </TabsList>
