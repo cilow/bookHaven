@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,15 +30,20 @@ import {
 } from "lucide-react";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Link } from "react-router";
+import { Link } from "react-router"; // Correct router import
+import type { OrderItemType, OrderType, Payment, UserType } from "@/lib/types";
+import { fetchUserById } from "@/services/userService";
+import { insertOrder } from "@/services/orderService";
+import { createOrderItem } from "@/services/orderItemService";
+import { createPayment } from "@/services/paymentService";
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  address: z.string().min(5, "Address must be at least 5 characters"),
-  city: z.string().min(2, "City must be at least 2 characters"),
-  state: z.string().min(2, "State must be at least 2 characters"),
-  zip: z.string().min(5, "ZIP code must be at least 5 characters"),
+  name: z.string().min(2),
+  email: z.string().email(),
+  address: z.string().min(5),
+  city: z.string().min(2),
+  state: z.string().min(2),
+  zip: z.string().min(5),
   paymentMethod: z.enum(["credit", "bank"]),
   cardNumber: z.string().optional(),
   expiry: z.string().optional(),
@@ -51,13 +56,14 @@ export default function CheckoutPage() {
   const { items, clearCart } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [user, setUser] = useState<UserType | null>(null);
 
   const subtotal = items.reduce(
-    (total, item) => total + item.book.price * item.quantity,
+    (total, item) => total + item.book.sellingPrice * item.quantity,
     0
   );
   const shippingCost = subtotal > 35 ? 0 : 4.99;
-  const tax = subtotal * 0.07; // 7% tax
+  const tax = subtotal * 0.07;
   const total = subtotal + shippingCost + tax;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -80,22 +86,70 @@ export default function CheckoutPage() {
 
   const paymentMethod = form.watch("paymentMethod");
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    if (items.length === 0) {
-      toast("Your cart is empty", {
-        description: "Please add items to your cart before checking out.",
-      });
+  useEffect(() => {
+    const loadUser = async () => {
+      const data = await fetchUserById(1); // Replace with actual logged-in user ID
+      setUser(data);
+    };
+    loadUser();
+  }, []);
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+      toast.error("User not found");
       return;
     }
 
-    setIsSubmitting(true);
+    if (items.length === 0) {
+      toast.warning("Your cart is empty");
+      return;
+    }
 
-    // Simulate API request
-    setTimeout(() => {
+    try {
+      setIsSubmitting(true);
+
+      const newOrder: OrderType = {
+        orderDate: new Date().toISOString(),
+        total: total.toFixed(2),
+        status: "PROCESSING",
+        items: items.length,
+        user_id: user.id,
+      };
+
+      const createdOrder = await insertOrder(newOrder);
+
+      const orderItems: OrderItemType[] = items.map((item) => ({
+        quantity: item.quantity,
+        unitPrice: item.book.sellingPrice.toString(),
+        order_id: createdOrder.id,
+        book_id: item.book.id,
+      }));
+      orderItems.forEach(async (orderItem) => {
+        await createOrderItem(orderItem);
+      });
+
+      const payment: Payment = {
+        amount: total.toFixed(2),
+        paymentDate: new Date().toISOString(),
+        method: values.paymentMethod,
+        status: "PENDING",
+        order_id: createdOrder.id,
+        user_id: user.id,
+      };
+
+      await createPayment(payment);
+
+      toast.success("Order placed successfully");
+      setTimeout(() => {
+        clearCart();
+        setIsSubmitting(false);
+        setIsComplete(true);
+      }, 1000);
+    } catch (error) {
+      toast.error("Something went wrong while placing the order");
+      console.error(error);
       setIsSubmitting(false);
-      setIsComplete(true);
-      clearCart();
-    }, 1500);
+    }
   }
 
   if (isComplete) {
@@ -108,8 +162,8 @@ export default function CheckoutPage() {
         </div>
         <h1 className="text-2xl font-bold mb-4">Order Confirmed!</h1>
         <p className="text-muted-foreground mb-8">
-          Thank you for your purchase. We've sent a confirmation email with your
-          order details.
+          Thank you for your purchase. A confirmation has been sent to your
+          email.
         </p>
         <Button asChild>
           <Link to="/">Return to Home</Link>
@@ -402,7 +456,9 @@ export default function CheckoutPage() {
                       × {item.quantity}
                     </span>
                   </div>
-                  <span>${(item.book.price * item.quantity).toFixed(2)}</span>
+                  <span>
+                    ${(item.book.sellingPrice * item.quantity).toFixed(2)}
+                  </span>
                 </div>
               ))}
 

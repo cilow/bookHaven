@@ -1,14 +1,3 @@
-export interface OrderType {
-  id: string; // e.g., "ORD-1001"
-  orderDate: string; // ISO date string format, or use Date if you parse it
-  total: number; // BigDecimal in Java -> number in TS
-  status: string;
-  items: number;
-  user: {
-    name: string;
-    email: string;
-  };
-}
 export interface BookType {
   id?: number;
   title: string;
@@ -98,4 +87,38 @@ export interface CategoryType {
   name: string;
   createdAt: string; // Use `Date` if you convert it from ISO
   updatedAt: string;
+}
+
+export type PaymentStatus = "PENDING" | "COMPLETED" | "FAILED"; // Match your PaymentStatus enum
+
+export interface Payment {
+  id: string;
+  amount: string; // Use string to represent BigDecimal
+  paymentDate: string; // ISO date string (e.g. "2025-05-28")
+  method: string; // You can change to enum if needed
+  status: PaymentStatus;
+  order_id: string;
+  user_id: number;
+}
+export type OrderStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED"; // Match your OrderStatus enum
+
+export interface OrderType {
+  id: string;
+  orderDate: string;
+  total: string;
+  status: OrderStatus;
+  items: number;
+  user_id: number;
+}
+export interface OrderItemType {
+  id: number;
+  quantity: number;
+  unitPrice: string;
+  order_id: string;
+  book_id: number;
 }
