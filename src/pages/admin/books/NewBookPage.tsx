@@ -36,9 +36,9 @@ export default function NewBookPage() {
     reset,
   } = useForm<BookType>({
     defaultValues: {
-      title: "Atomic habits",
-      author: "Alex Michaelides",
-      description: "hsssssssssssssssssssssssssssssssssssssssssss",
+      title: "",
+      author: "",
+      description: "",
       purchasePrice: 10,
       sellingPrice: 20,
       stock: 56,

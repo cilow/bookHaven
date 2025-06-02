@@ -57,7 +57,7 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [user, setUser] = useState<UserType | null>(null);
-
+  console.log(user);
   const subtotal = items.reduce(
     (total, item) => total + item.book.sellingPrice * item.quantity,
     0
@@ -115,6 +115,7 @@ export default function CheckoutPage() {
         items: items.length,
         user_id: user.id,
       };
+      console.log(newOrder);
 
       const createdOrder = await insertOrder(newOrder);
 
@@ -137,7 +138,7 @@ export default function CheckoutPage() {
         user_id: user.id,
       };
 
-      await createPayment(payment);
+      // await createPayment(payment);
 
       toast.success("Order placed successfully");
       setTimeout(() => {

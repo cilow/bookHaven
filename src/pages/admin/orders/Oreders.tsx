@@ -78,6 +78,7 @@ const columns: Column<OrderType>[] = [
 
 function Orders() {
   const { orders } = useOrders();
+  console.log(orders);
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -89,7 +90,7 @@ function Orders() {
           </Link>
         </Button>
       </div>
-      <DataTable columns={columns} data={orders} />
+      {/* <DataTable columns={columns} data={orders} /> */}
     </div>
   );
 }

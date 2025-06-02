@@ -16,6 +16,7 @@ export const fetchOrderById = async (id: number): Promise<OrderType> => {
 export const insertOrder = async (
   order: Omit<OrderType, "id" | "createdAt" | "updatedAt">
 ): Promise<OrderType> => {
+  console.log(order);
   const response = await axios.post(API_BASE, order);
   return response.data;
 };

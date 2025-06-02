@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
 import BookCardSkeleton from "@/components/skeleton/BookCardSkeleton";
 import useBooks from "@/hooks/useBooks";
+import adven from "../assets/najmo.avif";
 
 function Home() {
   const { books, isLoading } = useBooks();
@@ -75,7 +76,7 @@ function Home() {
           </div>
           <div className="flex justify-center">
             <img
-              src="/placeholder.svg?height=300&width=400"
+              src={adven}
               alt="Book club illustration"
               className="rounded-lg shadow-lg"
               width={400}

@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
-import coverImage from "../assets/placeholder.svg";
 import { Award, BookOpen, MapPin, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import about from "../assets/about.jpg";
 export default function About() {
   return (
     <div className="container mx-auto px-4 py-12">
@@ -10,7 +10,7 @@ export default function About() {
 
         <div className="mb-12 relative rounded-lg overflow-hidden h-[300px] md:h-[400px]">
           <img
-            src={coverImage}
+            src={about}
             alt="BookHaven store interior"
             className="absolute inset-0 w-full h-full object-cover"
           />

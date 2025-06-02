@@ -10,21 +10,14 @@ import {
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Link } from "react-router";
-import {
-  Heart,
-  LayoutDashboard,
-  LogOut,
-  Package,
-  Settings,
-  User,
-} from "lucide-react";
+import { Home, LogOut } from "lucide-react";
 
 const user = {
   name: "John Doe",
   email: "john@example.com",
   avatar: "/placeholder.svg?height=40&width=40",
 };
-function UserMenu() {
+function AdminUserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -51,47 +44,11 @@ function UserMenu() {
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
             <Link
-              to="/profile"
-              className="flex items-center w-full cursor-pointer"
-            >
-              <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link
               to="/admin/dashboard"
               className="flex items-center w-full cursor-pointer"
             >
-              <LayoutDashboard className="mr-2 h-4 w-4" />
-              <span>Admin</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link
-              to="/profile/orders"
-              className="flex items-center w-full cursor-pointer"
-            >
-              <Package className="mr-2 h-4 w-4" />
-              <span>My Orders</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link
-              to="/favorites"
-              className="flex items-center w-full cursor-pointer"
-            >
-              <Heart className="mr-2 h-4 w-4" />
-              <span>Favorites</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link
-              to="/profile?tab=settings"
-              className="flex items-center w-full cursor-pointer"
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
+              <Home className="mr-2 h-4 w-4" />
+              <span>Home</span>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -110,4 +67,4 @@ function UserMenu() {
   );
 }
 
-export default UserMenu;
+export default AdminUserMenu;

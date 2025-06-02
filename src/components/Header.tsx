@@ -16,7 +16,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { Heart, MenuIcon, ShoppingCart } from "lucide-react";
+import { BookOpen, Heart, MenuIcon, ShoppingCart } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { useCart } from "@/hooks/use-cart";
 import UserMenu from "./UserMenu";
@@ -89,8 +89,11 @@ export default function Header() {
           </div>
 
           {/* Logo */}
-          <Link to="/" className="font-bold text-2xl">
-            BookHaven
+          <Link to="/" className="flex items-center gap-2">
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              <BookOpen />
+            </div>
+            <span className="truncate text-2xl font-semibold">BookHaven</span>
           </Link>
 
           {/* Desktop Menu */}

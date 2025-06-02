@@ -32,11 +32,7 @@ export const items = [
     icon: BookOpen,
     url: "books",
   },
-  {
-    title: "Sales",
-    icon: ShoppingCart,
-    url: "sales",
-  },
+
   {
     title: "Purchases",
     icon: Package,
